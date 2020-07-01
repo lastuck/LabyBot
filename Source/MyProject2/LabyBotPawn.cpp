@@ -40,24 +40,27 @@ void ALabyBotPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	{
-		CurrentLocation += GetActorForwardVector() * 200.0f * DeltaTime;
-
 		SetActorLocation(CurrentLocation);
-		
+
 		FHitResult* HitResult = new FHitResult();
-		FVector StartTrace = this->GetActorLocation();
 		FVector ForwardVector = GetActorForwardVector();
-		FVector EndTrace = ((ForwardVector *5000.f)*StartTrace);
+		ForwardVector *= 100;
+		FVector UpVector = GetActorUpVector();
+		UpVector *= 100;
+		FVector StartTrace = this->GetActorLocation()+ForwardVector+UpVector;
+		FVector EndTrace = ((ForwardVector *10.f)+StartTrace);
 		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 
+		
 		if (GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Visibility, *TraceParams)) {
 			DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor(255, 0, 0), true);
+			FRotator NewRotation = FRotator(0.f, -90.f, 0.f);
+			FQuat QuatRotation = FQuat(NewRotation);
+			AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
 		}
-		FRotator NewRotation = FRotator(0.f, 0.5f, 0.f);
-
-		FQuat QuatRotation = FQuat(NewRotation);
-
-		AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
+		
+		CurrentLocation += GetActorForwardVector() * 600.0f * DeltaTime;
+		
 	}
 }
 
