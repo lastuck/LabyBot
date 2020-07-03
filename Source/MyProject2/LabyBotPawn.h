@@ -29,10 +29,9 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	USceneComponent* OurVisibleComponent;
-
-	void MoveForwardAxis(float value);
-	void StartMovingForward();
-	void StopMovingForward();
+	
+	UFUNCTION()
+		void DebugMouse();
 
 	FVector CurrentVelocity;
 	FVector CurrentLocation;

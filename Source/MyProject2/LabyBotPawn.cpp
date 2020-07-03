@@ -9,6 +9,7 @@
 #include "Engine.h"
 #include "DrawDebugHelpers.h"
 
+#define print(text) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,1.5,FColor::Green, text)
 
 // Sets default values
 ALabyBotPawn::ALabyBotPawn()
@@ -18,11 +19,7 @@ ALabyBotPawn::ALabyBotPawn()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	UCameraComponent* OurCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OurCamera"));
 	OurVisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OurVisibleComponent"));
-	OurCamera->SetupAttachment(RootComponent);
-	OurCamera->SetRelativeLocation(FVector(-250.0f, 0.0f, 250.0f));
-	OurCamera->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
 	OurVisibleComponent->SetupAttachment(RootComponent);
 	CurrentLocation = this->GetActorLocation();
 
@@ -48,7 +45,7 @@ void ALabyBotPawn::Tick(float DeltaTime)
 		FVector UpVector = GetActorUpVector();
 		UpVector *= 100;
 		FVector StartTrace = this->GetActorLocation()+ForwardVector+UpVector;
-		FVector EndTrace = ((ForwardVector *10.f)+StartTrace);
+		FVector EndTrace = ((ForwardVector *2.f)+StartTrace);
 		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 
 		
@@ -68,16 +65,10 @@ void ALabyBotPawn::Tick(float DeltaTime)
 void ALabyBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	PlayerInputComponent->BindAction("LeftMouse", IE_Pressed, this, &ALabyBotPawn::DebugMouse);
 }
 
-void ALabyBotPawn::MoveForwardAxis(float value) {
-
-}
-void ALabyBotPawn::StartMovingForward() {
-
-}
-void ALabyBotPawn::StopMovingForward() {
-
+void ALabyBotPawn::DebugMouse() {
+	print("labypressed");
 }
 
