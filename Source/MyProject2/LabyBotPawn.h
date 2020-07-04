@@ -35,5 +35,5 @@ public:
 
 	FVector CurrentVelocity;
 	FVector CurrentLocation;
-	bool bMoving;
+	bool ShouldMove;
 };

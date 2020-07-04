@@ -13,5 +13,7 @@ UCLASS()
 class MYPROJECT2_API AMyProject2GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+	// Sets default values for this pawn's properties
+	AMyProject2GameModeBase();
 };

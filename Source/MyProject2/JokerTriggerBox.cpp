@@ -3,8 +3,8 @@
 #include "JokerTriggerBox.h"
 #include "DrawDebugHelpers.h"
 
-#define print(text) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,1.5,FColor::Green, text)
-#define printf(text,fstring) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,1.5,FColor::Green, FString::Printf(TEXT(text), fstring))
+#define print(text) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,0.5,FColor::Green, text)
+#define printf(text,fstring) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,0.5,FColor::Green, FString::Printf(TEXT(text), fstring))
 
 
 
@@ -30,8 +30,8 @@ void AJokerTriggerBox::PutMeshHere()
 
 void AJokerTriggerBox::OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor) {
 	if (OtherActor && (OtherActor != this)) {
-		print("Overlap Begins");
-		printf("Overlapped Actor = %s", *OverlappedActor->GetName());
+		//print("Overlap Begins");
+		//printf("Overlapped Actor = %s", *OverlappedActor->GetName());
 		FRotator NewRotation;
 		if (TurnRight) {
 			NewRotation = FRotator(0.f, 90.f, 0.f);
@@ -48,7 +48,7 @@ void AJokerTriggerBox::ChangeRotation(bool wantedRotation) {
 }
 void AJokerTriggerBox::OnOverlapEnd(class AActor* OverlappedActor, class AActor* OtherActor) {
 	if (OtherActor && (OtherActor != this)) {
-		print("Overlap Ends");
-		printf("Overlapped Actor = %s", *OtherActor->GetName());
+		//print("Overlap Ends");
+		//printf("Overlapped Actor = %s", *OtherActor->GetName());
 	}
 }

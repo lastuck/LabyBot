@@ -5,8 +5,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "JokerTriggerBox.h"
+#include "Misc/OutputDeviceNull.h"
+#include "TimerManager.h"
+#include "LabyBotPawn.h"
+#include "Components/PointLightComponent.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+
 
 #define print(text) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,1.5,FColor::Green, text)
+#define printf(text,fstring) if(GEngine) GEngine->AddOnScreenDebugMessage(-1,1.5,FColor::Green, FString::Printf(TEXT(text), fstring))
 
 // Sets default values
 AMainCameraPawn::AMainCameraPawn()
@@ -24,29 +32,42 @@ void AMainCameraPawn::BeginPlay()
 	OurPlayer->SetViewTarget(mainCamera);
 	SelectedJoker = 0;
 	TurnRight = true;
+	RemainingBattery = 100;
+	UITimer = 0;
+	
+	StartGame = false;
+	LightsOff = true;
+	Alarm1->SetActorHiddenInGame(LightsOff);
+	Alarm2->SetActorHiddenInGame(LightsOff);
+	Alarm3->SetActorHiddenInGame(LightsOff);
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AMainCameraPawn::ShowBestTime, 1.0f, true, 0.0f);
+	//UPointLightComponent* Alarm1Pointer = Cast<UPointLightComponent>(Alarm1);
+	//Alarm1Pointer->ToggleVisibility();
 }
 
 // Called every frame
 void AMainCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	FVector mouseLocation, mouseDirection;
-	APlayerController* OurPlayer = UGameplayStatics::GetPlayerController(this, 0);
-	OurPlayer->DeprojectMousePositionToWorld(mouseLocation, mouseDirection);
+	if (!StartGame) {
+		FVector mouseLocation, mouseDirection;
+		APlayerController* OurPlayer = UGameplayStatics::GetPlayerController(this, 0);
+		OurPlayer->DeprojectMousePositionToWorld(mouseLocation, mouseDirection);
 
-	HitResult = new FHitResult();
-	FVector StartTrace;
-	StartTrace.X = -130.f;
-	StartTrace.Y = 590.f;
-	StartTrace.Z = 8900.f;
-	FVector ForwardVector = mouseDirection * 10.f;
-	FVector EndTrace = ((ForwardVector *5000.f) + StartTrace);
-	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+		HitResult = new FHitResult();
+		FVector StartTrace;
+		StartTrace.X = 260.f;
+		StartTrace.Y = 590.f;
+		StartTrace.Z = 5330.f;
+		FVector ForwardVector = mouseDirection * 10.f;
+		FVector EndTrace = ((ForwardVector *5000.f) + StartTrace);
+		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 
-	if (GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Visibility, *TraceParams)) {
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor(255, 0, 0), true);
-		JokerPreviewObject->SetActorLocation(HitResult->Location);
-		//print("yay");
+		if (GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Visibility, *TraceParams)) {
+			DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor(255, 0, 0), true);
+			JokerPreviewObject->SetActorLocation(HitResult->Location);
+			//print("yay");
+		}
 	}
 }
 
@@ -96,5 +117,53 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Input3", IE_Pressed, this, &AMainCameraPawn::SelectJoker3);
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, this, &AMainCameraPawn::ChangeJokerRotation);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, this, &AMainCameraPawn::ChangeJokerRotation);
+	PlayerInputComponent->BindAction("Enter", IE_Pressed, this, &AMainCameraPawn::StartRobot);
 }
 
+void AMainCameraPawn::DecreaseBattery() {
+	RemainingBattery--;
+	if (RemainingBattery <= 30) {
+		LightsOff = !LightsOff;
+		Alarm1->SetActorHiddenInGame(LightsOff);
+		Alarm2->SetActorHiddenInGame(LightsOff);
+		Alarm3->SetActorHiddenInGame(LightsOff);
+	}
+	if (RemainingBattery <= 0) {
+		UGameplayStatics::OpenLevel(GetWorld(), "LabyBotTestMap");
+	}
+}
+
+void AMainCameraPawn::ShowBestTime() {
+	FString score;
+	FString filename = "BestScore.txt";
+	FFileHelper::LoadFileToString(score, *(FPaths::ProjectDir() + filename));
+	BestScore = FCString::Atoi(*score);
+	if (TurnRight) 
+	{
+		print(TEXT("meilleur temps : ") + score + TEXT("s direction : droite"));
+	}
+	else 
+	{
+		print(TEXT("meilleur temps : ") + score + TEXT("s direction : gauche"));
+	}
+
+}
+
+void AMainCameraPawn::IncreaseTimer() {
+	UITimer++;
+	FString fromInt = FString::FromInt(UITimer);
+	printf("temps : %s s", *FString(fromInt));
+}
+
+void AMainCameraPawn::StartRobot()
+{
+	StartGame = true;
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AMainCameraPawn::DecreaseBattery, 1.0f, true, 0.0f);
+	GetWorldTimerManager().SetTimer(MemberTimerHandle2, this, &AMainCameraPawn::IncreaseTimer, 1.0f, true, 0.0f);
+	JokerPreviewObject->Destroy();
+	ALabyBotPawn* LabyBotPointer = Cast<ALabyBotPawn>(labybot);
+	LabyBotPointer->ShouldMove = true;
+	
+	//UPointLightComponent* Alarm1Pointer = Cast<UPointLightComponent>(Alarm1);
+	//Alarm1Pointer->ToggleVisibility();
+}

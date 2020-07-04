@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MainCameraPawn.generated.h"
 
+
 UCLASS()
 class MYPROJECT2_API AMainCameraPawn : public APawn
 {
@@ -37,11 +38,28 @@ public:
 		AActor* Joker2;
 	UPROPERTY(EditAnyWhere)
 		AActor* Joker3;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Functions")
+		int RemainingBattery;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Functions")
+		bool StartGame;
+	UPROPERTY(EditAnywhere)
+		AActor* labybot;
+	UPROPERTY(EditAnywhere)
+		AActor* Alarm1;
+	UPROPERTY(EditAnywhere)
+		AActor* Alarm2;
+	UPROPERTY(EditAnywhere)
+		AActor* Alarm3;
+
 	int SelectedJoker;
 	bool TurnRight;
+	FTimerHandle MemberTimerHandle;
+	FTimerHandle MemberTimerHandle2;
+	bool LightsOff;
+	int UITimer;
+	int BestScore;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "My Functions")
 		void SelectJoker1();
 	UFUNCTION()
 		void SelectJoker2();
@@ -51,4 +69,16 @@ public:
 		void SpawnJoker();
 	UFUNCTION()
 		void ChangeJokerRotation();
+
+	UFUNCTION()
+		void DecreaseBattery();
+
+	UFUNCTION()
+		void IncreaseTimer();
+
+	UFUNCTION()
+		void StartRobot();
+
+	UFUNCTION()
+		void ShowBestTime();
 };
