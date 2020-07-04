@@ -107,6 +107,10 @@ void AMainCameraPawn::SelectJoker3() {
 void AMainCameraPawn::ChangeJokerRotation() {
 	TurnRight = !TurnRight;
 }
+void AMainCameraPawn::ResetLevel()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "LabyBotTestMap");
+}
 // Called to bind functionality to input
 void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -118,6 +122,7 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("ScrollUp", IE_Pressed, this, &AMainCameraPawn::ChangeJokerRotation);
 	PlayerInputComponent->BindAction("ScrollDown", IE_Pressed, this, &AMainCameraPawn::ChangeJokerRotation);
 	PlayerInputComponent->BindAction("Enter", IE_Pressed, this, &AMainCameraPawn::StartRobot);
+	PlayerInputComponent->BindAction("InputR", IE_Pressed, this, &AMainCameraPawn::ResetLevel);
 }
 
 void AMainCameraPawn::DecreaseBattery() {

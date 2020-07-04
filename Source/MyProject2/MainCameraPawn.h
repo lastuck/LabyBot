@@ -69,6 +69,8 @@ public:
 		void SpawnJoker();
 	UFUNCTION()
 		void ChangeJokerRotation();
+	UFUNCTION()
+		void ResetLevel();
 
 	UFUNCTION()
 		void DecreaseBattery();
